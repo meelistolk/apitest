@@ -34,7 +34,7 @@ API endpointid on kapseldatud `api/` kaustas olevatesse klientklassidesse. Mudel
 
 ## Test scope
 
-Testikomplekt sisaldab 9 testi:
+Testikomplekt sisaldab 12 testi:
 
 - `GET /collections` – kontrollib staatust, JSON-vastust ja `data` massiivi.
 - `POST /products/records` – kontrollib toote loomist, metadata’t, UUID-sid, projekt ID-d, timestamp’e ja payload’i.
@@ -45,5 +45,8 @@ Testikomplekt sisaldab 9 testi:
 - Puuduv API-võti – eeldab `401` või `403` vastust.
 - Vigane payload – kontrollib puuduva `data` wrapper’i tagasilükkamist.
 - Olematu toote ID – eeldab `404` vastust.
+- Olematu collection – eeldab `404` vastust.
+- Olematu toote update – eeldab `404` vastust.
+- Olematu toote delete – eeldab `404` vastust.
 
 Happy-path testid on märgitud `@smoke` tagiga ja veaolukorrad `@negative` tagiga. Testid koristavad loodud andmed pärast kasutamist ära ning TypeScripti kontroll käivitatakse nii lokaalselt kui ka GitHub Actions workflow’s.

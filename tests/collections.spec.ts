@@ -228,3 +228,32 @@ test('GET returns 404 for an unknown product @negative', async ({ collectionsApi
 
   expect(response.status()).toBe(404);
 });
+
+test('GET fails for an unknown collection @regression @negative', async ({ request }) => {
+  const response = await request.get('collections/unknown-collection/records', {
+    params: { project_id: projectId },
+  });
+
+  expect(response.status()).toBe(404);
+});
+
+test('PUT fails for an unknown product @regression @negative', async ({ collectionsApi }) => {
+  const response = await collectionsApi.updateRecord(
+    'products',
+    '00000000-0000-0000-0000-000000000000',
+    projectId,
+    expectedProduct,
+  );
+
+  expect(response.status()).toBe(404);
+});
+
+test('DELETE fails for an unknown product @regression @negative', async ({ collectionsApi }) => {
+  const response = await collectionsApi.deleteRecord(
+    'products',
+    '00000000-0000-0000-0000-000000000000',
+    projectId,
+  );
+
+  expect(response.status()).toBe(404);
+});
