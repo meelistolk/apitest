@@ -6,11 +6,11 @@ on:
     branches: [ main, master ]
   workflow_dispatch:
       inputs:
-      test_tag:
-        description: 'Playwright tag või grep-muster, näiteks @smoke või @negative'
-        required: false
-        default: '@smoke'
-        type: string
+        test_tag:
+          description: 'Playwright tag või grep-muster, näiteks @smoke või @negative'
+          required: false
+          default: '@smoke'
+          type: string
 
 permissions:
   contents: read
