@@ -5,7 +5,7 @@ on:
   pull_request:
     branches: [ main, master ]
   workflow_dispatch:
-    inputs:
+      inputs:
       test_tag:
         description: 'Playwright tag või grep-muster, näiteks @smoke või @negative'
         required: false
@@ -24,7 +24,7 @@ concurrency:
 jobs:
   test:
     timeout-minutes: 60
-    runs-on: self-hosted
+    runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v4
     
@@ -94,7 +94,7 @@ jobs:
   deploy-report:
     if: ${{ github.event_name != 'pull_request' }}
     needs: test
-    runs-on: self-hosted
+    runs-on: ubuntu-latest
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
