@@ -1,0 +1,104 @@
+name: Playwright Tests
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+  workflow_dispatch:
+    inputs:
+      test_tag:
+        description: 'Playwright tag või grep-muster, näiteks @smoke või @negative'
+        required: false
+        default: '@smoke'
+        type: string
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: github-pages
+  cancel-in-progress: true
+
+jobs:
+  test:
+    timeout-minutes: 60
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    
+    - uses: actions/setup-node@v4
+      with:
+        node-version: lts/*
+
+    - name: Install dependencies
+      run: npm ci
+
+    - name: Typecheck
+      run: npm run typecheck
+
+    - name: Install Playwright Browsers
+      run: npx playwright install --with-deps
+
+    - name: Configure GitHub Pages
+      if: ${{ github.event_name != 'pull_request' }}
+      uses: actions/configure-pages@v5
+
+    - name: Verify ReqRes credentials
+      shell: bash
+      env:
+        REQRES_API_KEY: ${{ secrets.REQRES_API_KEY }}
+        REQRES_ENV: ${{ secrets.REQRES_ENV }}
+        REQRES_PROJECT_ID: ${{ secrets.REQRES_PROJECT_ID }}
+      run: |
+        test -n "$REQRES_API_KEY" || {
+          echo "::error::GitHub secret REQRES_API_KEY is not configured"
+          exit 1
+        }
+        test -n "$REQRES_ENV" || {
+          echo "::error::GitHub secret REQRES_ENV is not configured"
+          exit 1
+        }
+        test -n "$REQRES_PROJECT_ID" || {
+          echo "::error::GitHub secret REQRES_PROJECT_ID is not configured"
+          exit 1
+        }
+
+    - name: Run Playwright tests
+      run: |
+        if [ -n "$TEST_TAG" ]; then
+          npx playwright test --grep "$TEST_TAG"
+        else
+          npx playwright test
+        fi
+      env:
+        REQRES_API_KEY: ${{ secrets.REQRES_API_KEY }}
+        REQRES_ENV: ${{ secrets.REQRES_ENV }}
+        REQRES_PROJECT_ID: ${{ secrets.REQRES_PROJECT_ID }}
+        TEST_TAG: ${{ github.event_name == 'workflow_dispatch' && inputs.test_tag || '' }}
+
+    - uses: actions/upload-artifact@v4
+      if: ${{ !cancelled() }}
+      with:
+        name: playwright-report
+        path: playwright-report/
+        retention-days: 30
+
+    - name: Upload report for GitHub Pages
+      if: ${{ success() && github.event_name != 'pull_request' }}
+      uses: actions/upload-pages-artifact@v3
+      with:
+        path: playwright-report/
+
+  deploy-report:
+    if: ${{ github.event_name != 'pull_request' }}
+    needs: test
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy Playwright report to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

@@ -1,0 +1,23 @@
+{
+  "name": "apitest",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "mock": "json-server mock/db.json --port 3000",
+    "test": "playwright test",
+    "typecheck": "tsc --noEmit",
+    "test:ui": "playwright test --ui",
+    "test:report": "playwright show-report"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "devDependencies": {
+    "@playwright/test": "^1.63.0",
+    "@types/node": "^26.6.1",
+    "dotenv": "^18.0.0",
+    "json-server": "^1.0.0-beta.15",
+    "typescript": "^7.0.2"
+  }
+}
